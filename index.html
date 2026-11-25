@@ -107,6 +107,11 @@
   .goalform { display: flex; gap: 8px; }
   .goalform input { flex: 1; min-width: 0; }
   .goalform select { flex: none; }
+  .grp { list-style: none; margin: 14px 2px 2px; color: var(--ink); font-weight: 700; font-size: 15px; display: flex; align-items: baseline; gap: 6px; }
+  .grp small { color: var(--mute); font-weight: 600; font-size: 12px; }
+  .grp.cat { margin-top: 8px; font-size: 13px; color: var(--mute); text-transform: none; }
+  .catform { display: flex; gap: 8px; margin-top: 10px; }
+  .catform input { flex: 1; min-width: 0; }
   .goalhint { margin: 6px 2px 0; font-size: 12px; color: var(--mute); min-height: 16px; }
   label.switch { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 14px; color: var(--mute); }
   label.switch input { width: 20px; height: 20px; flex: none; accent-color: var(--brand); }
@@ -441,6 +446,37 @@ function renderDetail(e) {
   box.appendChild(form);
   box.appendChild(hint);
 
+  const cform = el('form', 'catform');
+  const cin = document.createElement('input');
+  cin.type = 'text'; cin.maxLength = 30; cin.placeholder = '📁 Kategori (örn. Telefon)';
+  cin.setAttribute('aria-label', 'Kategori');
+  cin.autocapitalize = 'sentences';
+  cin.value = e.it.category || '';
+  const dl = document.createElement('datalist');
+  dl.id = 'cats-' + e.it.id;
+  const seen = new Set();
+  for (const x of DATA.items) {
+    const c = x.category;
+    if (c && !seen.has(c.toLocaleLowerCase('tr'))) {
+      seen.add(c.toLocaleLowerCase('tr'));
+      const o = document.createElement('option'); o.value = c; dl.appendChild(o);
+    }
+  }
+  cin.setAttribute('list', dl.id);
+  const csave = el('button', 'small', 'Kaydet');
+  csave.type = 'submit';
+  cform.appendChild(cin); cform.appendChild(dl); cform.appendChild(csave);
+  cform.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    csave.disabled = true;
+    try {
+      const r = await api('category', { id: e.it.id, value: cin.value });
+      say(r.category ? 'Kategori: ' + r.category : 'Kategori kaldırıldı.');
+      await refresh();
+    } catch (err) { say(err.message, true); csave.disabled = false; }
+  });
+  box.appendChild(cform);
+
   const row2 = el('label', 'switch');
   const cb = document.createElement('input');
   cb.type = 'checkbox'; cb.checked = e.it.notifyAnyChange === true;
@@ -477,8 +513,38 @@ function render(data) {
   if (SORT === 'drop') list.sort((a, b) => a.d - b.d);
   else if (SORT === 'goal') list.sort((a, b) => goalRatio(b) - goalRatio(a));
 
+  // Platform > kategori gruplama (sıralama grup içinde korunur)
+  const norm = (c) => (c || '').toLocaleLowerCase('tr');
+  const platOrder = (e) => Object.keys(SOURCE).indexOf(e.p.source);
+  const hasCat = list.some((e) => e.it.category);
+  const catKeys = [...new Set(list.filter((e) => e.it.category).map((e) => norm(e.it.category)))]
+    .sort((a, b) => a.localeCompare(b, 'tr'));
+  const catRank = (e) => e.it.category ? catKeys.indexOf(norm(e.it.category)) : catKeys.length;
+  list.sort((a, b) =>
+    (SHOP === 'all' ? platOrder(a) - platOrder(b) : 0) || (hasCat ? catRank(a) - catRank(b) : 0));
+  const platCount = {}, catCount = {};
+  for (const e of list) {
+    platCount[e.p.source] = (platCount[e.p.source] || 0) + 1;
+    const ck = e.p.source + '|' + norm(e.it.category);
+    catCount[ck] = (catCount[ck] || 0) + 1;
+  }
+  let lastPlat = null, lastCat = null;
+
   for (const e of list) {
     const { it, p, base, cur, d, target } = e;
+    if (SHOP === 'all' && p.source !== lastPlat) {
+      const h = el('li', 'grp', SOURCE[p.source] || p.source);
+      h.appendChild(el('small', '', String(platCount[p.source])));
+      ul.appendChild(h);
+      lastPlat = p.source; lastCat = null;
+    }
+    if (hasCat && norm(it.category) !== lastCat) {
+      const name = it.category || 'Kategorisiz';
+      const h = el('li', 'grp cat', '📁 ' + name);
+      h.appendChild(el('small', '', String(catCount[p.source + '|' + norm(it.category)])));
+      ul.appendChild(h);
+      lastCat = norm(it.category);
+    }
     const li = el('li', 'item');
 
     if (p.imageUrl && /^https:\/\//.test(p.imageUrl)) {
