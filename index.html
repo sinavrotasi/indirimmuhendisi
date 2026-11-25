@@ -562,16 +562,21 @@ function render(data) {
   }
   if (SORT === 'drop') list.sort((a, b) => a.d - b.d);
   else if (SORT === 'goal') list.sort((a, b) => goalRatio(b) - goalRatio(a));
+  else list.sort((a, b) => new Date(b.it.addedAt) - new Date(a.it.addedAt) || b.it.id - a.it.id);
 
-  // Platform > kategori gruplama (sıralama grup içinde korunur)
+  // Platform > kategori gruplama: gruplar, içlerindeki en iyi ürünün sırasına göre dizilir,
+  // böylece seçili sıralamanın birincisi her zaman en üstte olur
   const norm = (c) => (c || '').toLocaleLowerCase('tr');
-  const platOrder = (e) => Object.keys(SOURCE).indexOf(e.p.source);
   const hasCat = list.some((e) => e.it.category);
-  const catKeys = [...new Set(list.filter((e) => e.it.category).map((e) => norm(e.it.category)))]
-    .sort((a, b) => a.localeCompare(b, 'tr'));
-  const catRank = (e) => e.it.category ? catKeys.indexOf(norm(e.it.category)) : catKeys.length;
+  const platRank = {}, catRankMap = {};
+  list.forEach((e, i) => {
+    if (platRank[e.p.source] === undefined) platRank[e.p.source] = i;
+    const ck = (SHOP === 'all' ? e.p.source : '') + '|' + norm(e.it.category);
+    if (catRankMap[ck] === undefined) catRankMap[ck] = i;
+    e.idx = i; e.pr = platRank[e.p.source]; e.cr = catRankMap[ck];
+  });
   list.sort((a, b) =>
-    (SHOP === 'all' ? platOrder(a) - platOrder(b) : 0) || (hasCat ? catRank(a) - catRank(b) : 0));
+    (SHOP === 'all' ? a.pr - b.pr : 0) || (hasCat ? a.cr - b.cr : 0) || a.idx - b.idx);
   const platCount = {}, catCount = {};
   for (const e of list) {
     platCount[e.p.source] = (platCount[e.p.source] || 0) + 1;
