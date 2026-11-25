@@ -106,6 +106,8 @@
   .legend { margin-bottom: 10px; text-align: center; }
   .goalform { display: flex; gap: 8px; }
   .goalform input { flex: 1; min-width: 0; }
+  .goalform select { flex: none; }
+  .goalhint { margin: 6px 2px 0; font-size: 12px; color: var(--mute); min-height: 16px; }
   label.switch { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 14px; color: var(--mute); }
   label.switch input { width: 20px; height: 20px; flex: none; accent-color: var(--brand); }
 </style>
@@ -370,14 +372,46 @@ function renderDetail(e) {
   box.appendChild(el('div', 'legend', '– – eklendiği fiyat' + (e.target !== null ? ' · ··· hedef fiyat' : '') + ' · son 90 gün'));
 
   const form = el('form', 'goalform');
+  const mode = el('select');
+  mode.setAttribute('aria-label', 'Hedef türü');
+  for (const [v, t] of [['tl', 'TL'], ['pct', '% indirim']]) {
+    const o = el('option', '', t); o.value = v; mode.appendChild(o);
+  }
   const inp = document.createElement('input');
   inp.type = 'number'; inp.step = '0.01'; inp.min = '0'; inp.inputMode = 'decimal';
-  inp.placeholder = '🎯 Hedef fiyat (TL)';
-  inp.setAttribute('aria-label', 'Hedef fiyat');
-  if (e.target !== null) inp.value = e.target;
+  const hint = el('div', 'goalhint');
+  const pctOf = (t) => Math.round((e.base - t) / e.base * 1000) / 10;
+  const toTl = (pc) => Math.round(e.base * (1 - pc / 100) * 100) / 100;
+  const setMode = (m) => {
+    mode.value = m;
+    inp.placeholder = m === 'pct' ? '🎯 Eklendiği fiyattan % indirim' : '🎯 Hedef fiyat (TL)';
+    inp.setAttribute('aria-label', m === 'pct' ? 'Hedef indirim yüzdesi' : 'Hedef fiyat');
+    inp.max = m === 'pct' ? '99' : '';
+    inp.value = '';
+    if (e.target !== null) {
+      inp.value = m === 'pct' ? String(pctOf(e.target)) : String(e.target);
+    }
+    preview();
+  };
+  const preview = () => {
+    const v = Number(inp.value);
+    if (inp.value === '' || !Number.isFinite(v) || v <= 0) {
+      hint.textContent = e.target !== null
+        ? 'Şu an: ' + fmt(e.target) + ' (eklendiği fiyattan %' + String(pctOf(e.target)).replace('.', ',') + ' indirim)'
+        : 'Eklendiği fiyat: ' + fmt(e.base);
+      return;
+    }
+    if (mode.value === 'pct') {
+      hint.textContent = v >= 100 ? 'Yüzde 100\'den küçük olmalı' : '= ' + fmt(toTl(v)) + ' ve altına düşünce bildirim';
+    } else {
+      hint.textContent = '= eklendiği fiyattan %' + String(pctOf(v)).replace('.', ',') + ' indirim';
+    }
+  };
+  inp.addEventListener('input', preview);
+  mode.addEventListener('change', () => setMode(mode.value));
   const save = el('button', 'small', 'Kaydet');
   save.type = 'submit';
-  form.appendChild(inp); form.appendChild(save);
+  form.appendChild(mode); form.appendChild(inp); form.appendChild(save);
   if (e.target !== null) {
     const clr = el('button', 'ghost small', 'Kaldır');
     clr.type = 'button';
@@ -389,15 +423,23 @@ function renderDetail(e) {
   }
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    if (inp.value === '') { say('Bir hedef fiyat yazın.', true); return; }
+    const n = Number(inp.value);
+    if (inp.value === '' || !Number.isFinite(n) || n <= 0) { say('Bir hedef yazın.', true); return; }
+    let value = n;
+    if (mode.value === 'pct') {
+      if (n >= 100) { say('İndirim yüzdesi 100\'den küçük olmalı.', true); return; }
+      value = toTl(n);
+    }
     save.disabled = true;
     try {
-      await api('target', { id: e.it.id, value: Number(inp.value) });
-      say('Hedef kaydedildi: ' + fmt(Number(inp.value)) + ' ve altına düşünce özel bildirim gelir.');
+      await api('target', { id: e.it.id, value });
+      say('Hedef kaydedildi: ' + fmt(value) + ' (%' + String(pctOf(value)).replace('.', ',') + ' indirim) ve altına düşünce özel bildirim gelir.');
       await refresh();
     } catch (err) { say(err.message, true); save.disabled = false; }
   });
+  setMode('tl');
   box.appendChild(form);
+  box.appendChild(hint);
 
   const row2 = el('label', 'switch');
   const cb = document.createElement('input');
@@ -465,7 +507,7 @@ function render(data) {
       const g = el('div', 'goal');
       g.textContent = cur <= target
         ? '🎯 Hedefe ulaştı (' + fmt(target) + ')'
-        : '🎯 Hedef ' + fmt(target) + ' · ' + fmt(cur - target) + ' kaldı';
+        : '🎯 Hedef ' + fmt(target) + ' (%' + String(Math.round((base - target) / base * 1000) / 10).replace('.', ',') + ') · ' + fmt(cur - target) + ' kaldı';
       const bar = el('div', 'bar');
       const fill = document.createElement('i');
       fill.style.width = Math.round(goalRatio(e) * 100) + '%';
