@@ -100,6 +100,8 @@
   .legend { margin-bottom: 10px; text-align: center; }
   .goalform { display: flex; gap: 8px; }
   .goalform input { flex: 1; min-width: 0; }
+  label.switch { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 14px; color: var(--mute); }
+  label.switch input { width: 20px; height: 20px; flex: none; accent-color: var(--brand); }
 </style>
 </head>
 <body>
@@ -366,6 +368,22 @@ function renderDetail(e) {
     } catch (err) { say(err.message, true); save.disabled = false; }
   });
   box.appendChild(form);
+
+  const row2 = el('label', 'switch');
+  const cb = document.createElement('input');
+  cb.type = 'checkbox'; cb.checked = e.it.notifyAnyChange === true;
+  row2.appendChild(cb);
+  row2.appendChild(el('span', '', 'Her fiyat değişiminde haber ver (artış dahil)'));
+  cb.addEventListener('change', async () => {
+    cb.disabled = true;
+    try {
+      await api('notify', { id: e.it.id, value: cb.checked });
+      e.it.notifyAnyChange = cb.checked;
+      say(cb.checked ? 'Bu üründe her fiyat değişimi bildirilecek.' : 'Sadece indirimler bildirilecek.');
+    } catch (err) { cb.checked = !cb.checked; say(err.message, true); }
+    cb.disabled = false;
+  });
+  box.appendChild(row2);
   return box;
 }
 
