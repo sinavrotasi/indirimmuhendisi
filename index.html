@@ -107,6 +107,13 @@
   .goalform { display: flex; gap: 8px; }
   .goalform input { flex: 1; min-width: 0; }
   .goalform select { flex: none; }
+  .cats { display: flex; gap: 6px; overflow-x: auto; margin: -2px -16px 10px; padding: 2px 16px; scrollbar-width: none; }
+  .cats::-webkit-scrollbar { display: none; }
+  .cats button { flex: none; padding: 6px 12px; font-size: 13px; font-weight: 600; background: var(--card); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px; }
+  .cats button small { color: var(--mute); margin-left: 4px; font-weight: 600; }
+  .cats button[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+  .cats button[aria-pressed="true"] small { color: inherit; opacity: .85; }
   .grp { list-style: none; margin: 14px 2px 2px; color: var(--ink); font-weight: 700; font-size: 15px; display: flex; align-items: baseline; gap: 6px; }
   .grp small { color: var(--mute); font-weight: 600; font-size: 12px; }
   .grp.cat { margin-top: 8px; font-size: 13px; color: var(--mute); text-transform: none; }
@@ -146,6 +153,7 @@
     <div id="msg" role="status" aria-live="polite"></div>
 
     <div id="tabs" class="tabs" hidden></div>
+    <div id="cats" class="cats" hidden></div>
     <div id="summary" class="summary" hidden></div>
     <ul id="list"></ul>
 
@@ -241,6 +249,8 @@ let DATA = null;
 let SORT = 'new';
 try { SORT = localStorage.getItem('sortMode') || 'new'; } catch (_) { /* yoksay */ }
 if (!['new', 'drop', 'goal'].includes(SORT)) SORT = 'new';
+let CAT = '';
+try { CAT = localStorage.getItem('catFilter') || ''; } catch (_) { /* yoksay */ }
 let SHOP = 'all';
 try { SHOP = localStorage.getItem('shopFilter') || 'all'; } catch (_) { /* yoksay */ }
 if (!['all', 'hepsiburada', 'trendyol'].includes(SHOP)) SHOP = 'all';
@@ -361,6 +371,42 @@ function renderTabs(all) {
     });
     box.appendChild(b);
   }
+}
+
+const NOCAT = '\u0000none';
+function renderCats(pool) {
+  const box = $('cats');
+  box.replaceChildren();
+  const norm = (c) => (c || '').toLocaleLowerCase('tr');
+  const names = new Map();
+  let none = 0;
+  for (const e of pool) {
+    const c = e.it.category;
+    if (!c) { none++; continue; }
+    const k = norm(c);
+    const cur = names.get(k) || { name: c, n: 0 };
+    cur.n++; names.set(k, cur);
+  }
+  if (!names.size) { box.hidden = true; if (CAT) setCat(''); return; }
+  if (CAT && CAT !== NOCAT && !names.has(CAT)) setCat('');
+  if (CAT === NOCAT && !none) setCat('');
+  box.hidden = false;
+  const chips = [['', 'Tüm kategoriler', pool.length]];
+  [...names.entries()].sort((a, b) => a[0].localeCompare(b[0], 'tr'))
+    .forEach(([k, v]) => chips.push([k, v.name, v.n]));
+  if (none) chips.push([NOCAT, 'Kategorisiz', none]);
+  for (const [k, t, n] of chips) {
+    const b = el('button', '', t);
+    b.type = 'button';
+    b.appendChild(el('small', '', String(n)));
+    b.setAttribute('aria-pressed', k === CAT ? 'true' : 'false');
+    b.addEventListener('click', () => { setCat(k); render(DATA); });
+    box.appendChild(b);
+  }
+}
+function setCat(k) {
+  CAT = k;
+  try { localStorage.setItem('catFilter', CAT); } catch (_) { /* yoksay */ }
 }
 
 function renderDetail(e) {
@@ -502,7 +548,11 @@ function render(data) {
   $('thr').value = data.minDropPct;
   const all = data.items.map(enrich);
   renderTabs(all);
-  const list = SHOP === 'all' ? all : all.filter((e) => e.p.source === SHOP);
+  const pool = SHOP === 'all' ? all : all.filter((e) => e.p.source === SHOP);
+  renderCats(pool);
+  const normC = (c) => (c || '').toLocaleLowerCase('tr');
+  const list = !CAT ? pool
+    : pool.filter((e) => CAT === NOCAT ? !e.it.category : normC(e.it.category) === CAT);
   renderSummary(list);
   if (!list.length) {
     ul.appendChild(el('li', 'empty', all.length
@@ -538,7 +588,7 @@ function render(data) {
       ul.appendChild(h);
       lastPlat = p.source; lastCat = null;
     }
-    if (hasCat && norm(it.category) !== lastCat) {
+    if (hasCat && !CAT && norm(it.category) !== lastCat) {
       const name = it.category || 'Kategorisiz';
       const h = el('li', 'grp cat', '📁 ' + name);
       h.appendChild(el('small', '', String(catCount[p.source + '|' + norm(it.category)])));
