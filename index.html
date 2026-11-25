@@ -86,6 +86,12 @@
   .summary .sub { color: var(--mute); font-size: 13px; }
   .summary .big { font-size: 22px; font-weight: 700; color: var(--good); font-variant-numeric: tabular-nums; }
   .summary .big.none { color: var(--mute); }
+  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .tabs button { flex: 1; padding: 9px 6px; font-size: 14px; background: var(--card); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 12px; font-weight: 600; }
+  .tabs button small { color: var(--mute); font-weight: 600; margin-left: 4px; }
+  .tabs button[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+  .tabs button[aria-pressed="true"] small { color: inherit; opacity: .85; }
   select { font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); }
   .chip.low { background: var(--chip-good); color: var(--good); }
   .goal { margin-top: 8px; font-size: 12px; color: var(--mute); }
@@ -132,6 +138,7 @@
     </form>
     <div id="msg" role="status" aria-live="polite"></div>
 
+    <div id="tabs" class="tabs" hidden></div>
     <div id="summary" class="summary" hidden></div>
     <ul id="list"></ul>
 
@@ -227,6 +234,9 @@ let DATA = null;
 let SORT = 'new';
 try { SORT = localStorage.getItem('sortMode') || 'new'; } catch (_) { /* yoksay */ }
 if (!['new', 'drop', 'goal'].includes(SORT)) SORT = 'new';
+let SHOP = 'all';
+try { SHOP = localStorage.getItem('shopFilter') || 'all'; } catch (_) { /* yoksay */ }
+if (!['all', 'hepsiburada', 'trendyol'].includes(SHOP)) SHOP = 'all';
 
 const NS = 'http://www.w3.org/2000/svg';
 function svgEl(tag, attrs) {
@@ -326,6 +336,26 @@ function renderSummary(list) {
   box.appendChild(sel);
 }
 
+function renderTabs(all) {
+  const box = $('tabs');
+  box.replaceChildren();
+  if (!all.length) { box.hidden = true; return; }
+  box.hidden = false;
+  const count = (k) => k === 'all' ? all.length : all.filter((e) => e.p.source === k).length;
+  for (const [k, t] of [['all', 'Tümü'], ['hepsiburada', 'Hepsiburada'], ['trendyol', 'Trendyol']]) {
+    const b = el('button', '', t);
+    b.type = 'button';
+    b.appendChild(el('small', '', String(count(k))));
+    b.setAttribute('aria-pressed', k === SHOP ? 'true' : 'false');
+    b.addEventListener('click', () => {
+      SHOP = k;
+      try { localStorage.setItem('shopFilter', SHOP); } catch (_) { /* yoksay */ }
+      render(DATA);
+    });
+    box.appendChild(b);
+  }
+}
+
 function renderDetail(e) {
   const box = el('div', 'detail');
   box.appendChild(bigChart(e.it.history || [], e.cur, e.base, e.target));
@@ -392,10 +422,14 @@ function render(data) {
   const ul = $('list');
   ul.replaceChildren();
   $('thr').value = data.minDropPct;
-  const list = data.items.map(enrich);
+  const all = data.items.map(enrich);
+  renderTabs(all);
+  const list = SHOP === 'all' ? all : all.filter((e) => e.p.source === SHOP);
   renderSummary(list);
   if (!list.length) {
-    ul.appendChild(el('li', 'empty', 'Henüz takip ettiğin ürün yok. Yukarıya bir link yapıştır.'));
+    ul.appendChild(el('li', 'empty', all.length
+      ? 'Bu mağazada takip ettiğin ürün yok.'
+      : 'Henüz takip ettiğin ürün yok. Yukarıya bir link yapıştır.'));
     return;
   }
   if (SORT === 'drop') list.sort((a, b) => a.d - b.d);
