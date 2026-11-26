@@ -4,21 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0f766e">
+<meta name="theme-color" content="#0b8a5f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="İndirim Mühendisi">
 <title>İndirim Mühendisi</title>
 <style>
   :root {
-    --bg: #f6f7f4; --card: #ffffff; --ink: #16211f; --mute: #66726e; --line: #e3e7e2;
-    --brand: #0f766e; --on-brand: #ffffff; --good: #15803d; --bad: #b91c1c; --warn: #b45309;
-    --chip-good: #dcfce7; --chip-bad: #fee2e2; --chip-flat: #eef1ee;
+    --bg: #f3f6f4; --card: #ffffff; --ink: #14201c; --mute: #6b7772; --line: #e4e9e6;
+    --brand: #0b8a5f; --on-brand: #ffffff; --good: #15803d; --bad: #b91c1c; --warn: #b45309;
+    --chip-good: #dcfce7; --chip-bad: #fee2e2; --chip-flat: #eaefec;
+    --shadow: 0 1px 2px rgba(16,40,30,.05), 0 6px 18px rgba(16,40,30,.05);
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0e1514; --card: #16201e; --ink: #e8efec; --mute: #94a39d; --line: #243330;
-      --brand: #2dd4bf; --on-brand: #042f2e; --good: #4ade80; --bad: #f87171; --warn: #fbbf24;
-      --chip-good: #12331f; --chip-bad: #3a1717; --chip-flat: #1d2a27;
+      --brand: #34d399; --on-brand: #04261c; --good: #4ade80; --bad: #f87171; --warn: #fbbf24;
+      --chip-good: #12331f; --chip-bad: #3a1717; --chip-flat: #22302d;
+      --shadow: none;
     }
   }
   * { box-sizing: border-box; }
@@ -32,77 +34,113 @@
     padding: max(16px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
   }
   [hidden] { display: none !important; }
-  h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0 16px; }
+  h1 { font-size: 19px; margin: 0; letter-spacing: -0.01em; line-height: 1.2; }
+  h2 { font-size: 17px; margin: 0; letter-spacing: -0.01em; }
+  header { display: flex; align-items: center; gap: 12px; margin: 6px 0 14px; }
+  .logo { width: 42px; height: 42px; border-radius: 13px; background: var(--brand); color: var(--on-brand);
+    display: grid; place-items: center; flex: none; }
+  .logo svg { width: 23px; height: 23px; }
+  .brandtxt { flex: 1; min-width: 0; }
+  .tag { font-size: 12.5px; color: var(--mute); }
   button {
-    font: inherit; font-weight: 600; border: 0; border-radius: 12px; padding: 11px 14px;
+    font: inherit; font-weight: 600; border: 0; border-radius: 14px; padding: 11px 14px;
     background: var(--brand); color: var(--on-brand); cursor: pointer;
   }
   button:disabled { opacity: .55; }
   button.ghost { background: transparent; color: var(--brand); border: 1px solid var(--line); }
   button.small { padding: 7px 10px; font-size: 14px; }
+  .iconbtn { width: 42px; height: 42px; padding: 0; border-radius: 50%; display: grid; place-items: center; flex: none;
+    background: var(--card); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .iconbtn svg { width: 20px; height: 20px; }
+  .iconbtn:disabled svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   a.go {
-    display: inline-block; padding: 7px 12px; font-size: 14px; font-weight: 700; border-radius: 12px;
-    background: var(--brand); color: var(--on-brand); text-decoration: none; white-space: nowrap;
+    display: inline-block; padding: 6px 12px; font-size: 14px; font-weight: 700; border-radius: 12px;
+    border: 1.5px solid var(--brand); color: var(--brand); background: transparent; text-decoration: none; white-space: nowrap;
   }
   input {
     font: inherit; width: 100%; padding: 12px 14px; border: 1px solid var(--line);
-    border-radius: 12px; background: var(--card); color: var(--ink);
+    border-radius: 14px; background: var(--card); color: var(--ink);
   }
   input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-  form.add { display: grid; gap: 8px; margin-bottom: 8px; }
+  .search { position: relative; margin-bottom: 10px; }
+  .search svg { position: absolute; left: 13px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); color: var(--mute); pointer-events: none; }
+  .search input { padding-left: 40px; box-shadow: var(--shadow); }
+  form.add { display: flex; gap: 8px; }
+  .linkin { position: relative; flex: 1; min-width: 0; }
+  .linkin input { padding-right: 48px; box-shadow: var(--shadow); }
+  .paste { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; padding: 0;
+    display: grid; place-items: center; background: var(--chip-flat); color: var(--ink); border-radius: 11px; }
+  .paste svg { width: 18px; height: 18px; }
+  #btnAdd { white-space: nowrap; padding: 11px 16px; }
   .row { display: flex; gap: 8px; }
   .row > * { flex: 1; }
-  #msg { min-height: 1.4em; margin: 6px 2px 12px; color: var(--mute); font-size: 14px; }
+  #msg { min-height: 1.4em; margin: 6px 2px 0; color: var(--mute); font-size: 14px; }
   #msg.err { color: var(--bad); }
   ul { list-style: none; margin: 0; padding: 0; }
+  .tiles { display: flex; gap: 8px; margin: 10px 0; align-items: stretch; }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: none; padding: 2px 1px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button.tile { flex: 1 0 auto; min-width: 62px; display: grid; justify-items: center; gap: 1px; padding: 8px 10px 7px;
+    background: var(--card); color: var(--ink); border: 1.5px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .tile b { font-size: 16px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .tile span.lb { font-size: 11px; color: var(--mute); font-weight: 600; }
+  .tabs button.tile[aria-pressed="true"] { border-color: var(--brand); background: var(--chip-good); }
+  .pb { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; font-size: 10px; font-weight: 800;
+    letter-spacing: -.02em; line-height: 1; flex: none; }
+  .tiles .iconbtn { border-radius: 16px; width: 46px; height: auto; align-self: stretch; margin: 2px 0; }
+  .settings { display: grid; gap: 10px; padding: 12px 14px; margin-bottom: 10px; font-size: 14px; color: var(--mute);
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+  .settings .row { align-items: center; }
+  .settings .row > label { flex: 1 1 auto; }
+  .settings .row > select, .settings .row > input, .settings .row > button { flex: none; }
+  .settings input { width: 80px; text-align: center; }
+  .listhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 14px 2px 2px; }
+  .pill { background: var(--chip-good); color: var(--good); font-weight: 700; font-size: 13px; padding: 5px 11px;
+    border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .subline { font-size: 12.5px; color: var(--mute); margin: 0 2px 10px; min-height: 1em; }
   li.item {
-    display: grid; grid-template-columns: 72px 1fr; gap: 12px; padding: 12px; margin-bottom: 10px;
-    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    display: grid; grid-template-columns: 68px 1fr auto; gap: 8px 12px; padding: 12px; margin-bottom: 10px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
   }
-  li.item img {
-    width: 72px; height: 72px; object-fit: contain; border-radius: 10px; background: #fff;
-    border: 1px solid var(--line);
+  li.item.noring .main { grid-column: 2 / -1; }
+  .thumb { position: relative; width: 68px; height: 68px; }
+  .thumb img, .noimg {
+    width: 68px; height: 68px; object-fit: contain; border-radius: 12px; background: #fff;
+    border: 1px solid var(--line); display: block;
   }
-  .noimg { width: 72px; height: 72px; border-radius: 10px; background: var(--chip-flat); }
+  .noimg { background: var(--chip-flat); }
+  .thumb .pb { position: absolute; left: -5px; top: -5px; box-shadow: 0 0 0 2px var(--card); }
+  .main { min-width: 0; }
   .title {
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     color: var(--ink); font-weight: 600; text-decoration: none; font-size: 15px;
   }
-  .prices { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; margin-top: 6px; }
-  .now { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .was { color: var(--mute); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .prices { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin-top: 6px; }
+  .now { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .was { color: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
   .chip { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
   .chip.good { background: var(--chip-good); color: var(--good); }
   .chip.bad { background: var(--chip-bad); color: var(--bad); }
   .chip.flat { background: var(--chip-flat); color: var(--mute); }
-  .meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; color: var(--mute); font-size: 12px; }
-  .meta .warn { color: var(--warn); font-weight: 600; }
-  svg.spark { width: 100%; height: 28px; margin-top: 6px; display: block; }
-  .empty { text-align: center; color: var(--mute); padding: 32px 8px; }
-  footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 10px; color: var(--mute); font-size: 14px; }
-  footer .row { align-items: center; }
-  footer input { max-width: 90px; text-align: center; }
-  .login { margin-top: 20vh; display: grid; gap: 12px; }
-  .login p { margin: 0; color: var(--mute); }
-  .summary { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; margin-bottom: 10px;
-    background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
-  .summary .sub { color: var(--mute); font-size: 13px; }
-  .summary .big { font-size: 22px; font-weight: 700; color: var(--good); font-variant-numeric: tabular-nums; }
-  .summary .big.none { color: var(--mute); }
-  .tabs { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tabs button { flex: 1 0 auto; padding: 9px 12px; white-space: nowrap; font-size: 14px; background: var(--card); color: var(--ink);
-    border: 1px solid var(--line); border-radius: 12px; font-weight: 600; }
-  .tabs button small { color: var(--mute); font-weight: 600; margin-left: 4px; }
-  .tabs button[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
-  .tabs button[aria-pressed="true"] small { color: inherit; opacity: .85; }
-  select { font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); }
   .chip.low { background: var(--chip-good); color: var(--good); }
-  .goal { margin-top: 8px; font-size: 12px; color: var(--mute); }
-  .bar { height: 6px; margin-top: 4px; border-radius: 999px; background: var(--chip-flat); overflow: hidden; }
-  .bar > i { display: block; height: 100%; background: var(--good); border-radius: 999px; }
-  .acts { display: flex; gap: 6px; }
+  .ring { width: 64px; text-align: center; }
+  .ring .rv { position: relative; width: 60px; height: 60px; margin: 0 auto; }
+  .ring svg { width: 60px; height: 60px; transform: rotate(-90deg); display: block; }
+  .ring .pct { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ring .tp { font-size: 11px; color: var(--mute); margin-top: 3px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .foot { grid-column: 1 / -1; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; color: var(--mute); font-size: 12px; }
+  .meta .warn { color: var(--warn); font-weight: 600; }
+  svg.spark { width: 100%; height: 28px; display: block; }
+  .acts { display: flex; gap: 6px; align-items: center; }
+  .more { width: 34px; height: 32px; padding: 0; border-radius: 12px; font-size: 18px; line-height: 1; letter-spacing: 1px; }
+  .menu { display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end; }
+  .empty { text-align: center; color: var(--mute); padding: 32px 8px; }
+  .login { margin-top: 20vh; display: grid; gap: 12px; }
+  .login form.add { display: grid; }
+  .login p { margin: 0; color: var(--mute); }
+  select { font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); }
   li.item .detail { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px; }
   svg.big { width: 100%; height: 120px; display: block; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin: 8px 0 4px; font-size: 14px; }
@@ -112,14 +150,14 @@
   .goalform { display: flex; gap: 8px; }
   .goalform input { flex: 1; min-width: 0; }
   .goalform select { flex: none; }
-  .cats { display: flex; gap: 6px; overflow-x: auto; margin: -2px -16px 10px; padding: 2px 16px; scrollbar-width: none; }
+  .cats { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 4px; padding: 2px 16px; scrollbar-width: none; }
   .cats::-webkit-scrollbar { display: none; }
   .cats button { flex: none; padding: 6px 12px; font-size: 13px; font-weight: 600; background: var(--card); color: var(--ink);
     border: 1px solid var(--line); border-radius: 999px; }
   .cats button small { color: var(--mute); margin-left: 4px; font-weight: 600; }
   .cats button[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
   .cats button[aria-pressed="true"] small { color: inherit; opacity: .85; }
-  .grp { list-style: none; margin: 14px 2px 2px; color: var(--ink); font-weight: 700; font-size: 15px; display: flex; align-items: baseline; gap: 6px; }
+  .grp { list-style: none; margin: 14px 2px 6px; color: var(--ink); font-weight: 700; font-size: 15px; display: flex; align-items: baseline; gap: 6px; }
   .grp small { color: var(--mute); font-weight: 600; font-size: 12px; }
   .grp.cat { margin-top: 8px; font-size: 13px; color: var(--mute); text-transform: none; }
   .catform { display: flex; gap: 8px; margin-top: 10px; }
@@ -143,33 +181,63 @@
 
   <section id="panel" hidden>
     <header>
-      <h1>İndirim Mühendisi</h1>
-      <button id="btnCheck" class="ghost small" type="button">Şimdi kontrol et</button>
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor"/></svg>
+      </div>
+      <div class="brandtxt">
+        <h1>İndirim Mühendisi</h1>
+        <div class="tag">Doğru zamanda, doğru fiyat</div>
+      </div>
+      <button id="btnCheck" class="iconbtn" type="button" aria-label="Şimdi kontrol et" title="Şimdi kontrol et">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
     </header>
 
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Takip edilen ürünlerde ara…" aria-label="Takip edilen ürünlerde ara">
+    </div>
+
     <form id="addForm" class="add">
-      <input id="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false"
-             placeholder="Hepsiburada / Trendyol / Amazon / N11 linki">
-      <div class="row">
-        <button id="btnPaste" class="ghost" type="button">Panodan yapıştır</button>
-        <button id="btnAdd" type="submit">Takibe al</button>
+      <div class="linkin">
+        <input id="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false"
+               placeholder="Ürün linkini yapıştır" aria-label="Ürün linki (Hepsiburada, Trendyol, Amazon, N11)">
+        <button id="btnPaste" class="paste" type="button" aria-label="Panodan yapıştır" title="Panodan yapıştır">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></svg>
+        </button>
       </div>
+      <button id="btnAdd" type="submit">+ Takibe Al</button>
     </form>
     <div id="msg" role="status" aria-live="polite"></div>
 
-    <div id="tabs" class="tabs" hidden></div>
-    <div id="cats" class="cats" hidden></div>
-    <div id="summary" class="summary" hidden></div>
-    <ul id="list"></ul>
+    <div class="tiles">
+      <div id="tabs" class="tabs"></div>
+      <button id="btnSet" class="iconbtn" type="button" aria-label="Ayarlar ve sıralama" aria-expanded="false" title="Ayarlar ve sıralama">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+      </button>
+    </div>
 
-    <footer>
+    <div id="settings" class="settings" hidden>
+      <div class="row">
+        <label for="sort">Sıralama</label>
+        <select id="sort">
+          <option value="new">Yeni eklenen</option>
+          <option value="drop">En çok düşen</option>
+          <option value="goal">Hedefe yakın</option>
+        </select>
+      </div>
       <div class="row">
         <label for="thr">En az % kaç düşüşte haber verilsin?</label>
         <input id="thr" type="number" min="0" max="90" step="0.5" inputmode="decimal">
         <button id="btnThr" class="ghost small" type="button">Kaydet</button>
       </div>
       <div><button id="btnOut" class="ghost small" type="button">Çıkış</button></div>
-    </footer>
+    </div>
+
+    <div id="cats" class="cats" hidden></div>
+    <div id="listhead" class="listhead"></div>
+    <div id="subline" class="subline"></div>
+    <ul id="list"></ul>
   </section>
 </main>
 
@@ -256,6 +324,7 @@ try { SORT = localStorage.getItem('sortMode') || 'new'; } catch (_) { /* yoksay 
 if (!['new', 'drop', 'goal'].includes(SORT)) SORT = 'new';
 let CAT = '';
 try { CAT = localStorage.getItem('catFilter') || ''; } catch (_) { /* yoksay */ }
+let Q = '';
 let SHOP = 'all';
 try { SHOP = localStorage.getItem('shopFilter') || 'all'; } catch (_) { /* yoksay */ }
 if (SHOP !== 'all' && !(SHOP in SOURCE)) SHOP = 'all';
@@ -328,47 +397,74 @@ function goalRatio(e) {
   return Math.max(0, Math.min(1, (e.base - e.cur) / (e.base - e.target)));
 }
 
+const BADGE = {
+  hepsiburada: ['hb', '#FF6000', '#ffffff'],
+  trendyol: ['T', '#F2542D', '#ffffff'],
+  amazon: ['a', '#FFB020', '#1f2937'],
+  n11: ['n11', '#7A3FD1', '#ffffff'],
+};
+function badge(src) {
+  const b = BADGE[src];
+  const s = el('span', 'pb', b ? b[0] : '?');
+  if (b) { s.style.background = b[1]; s.style.color = b[2]; } else { s.style.background = 'var(--chip-flat)'; }
+  s.setAttribute('aria-hidden', 'true');
+  return s;
+}
+
+// Hedef halkası: ortada indirim %'si, altında hedef fiyat, yay = hedefe ne kadar yaklaşıldığı
+function ring(e) {
+  const C = 194.8;
+  const hit = e.cur <= e.target;
+  const pct = Math.max(0, Math.round((e.base - e.target) / e.base * 100));
+  const tp = Math.round(e.target).toLocaleString('tr-TR') + ' TL';
+  const box = el('div', 'ring');
+  box.setAttribute('role', 'img');
+  box.setAttribute('aria-label', 'Hedef %' + pct + ', ' + tp + (hit ? ', ulaşıldı' : ', ' + fmt(e.cur - e.target) + ' kaldı'));
+  const rv = el('div', 'rv');
+  const svg = svgEl('svg', { viewBox: '0 0 72 72', 'aria-hidden': 'true' });
+  svg.appendChild(svgEl('circle', { cx: 36, cy: 36, r: 31, fill: 'none', stroke: 'var(--chip-flat)', 'stroke-width': 7 }));
+  svg.appendChild(svgEl('circle', {
+    cx: 36, cy: 36, r: 31, fill: 'none', stroke: hit ? 'var(--good)' : 'var(--brand)', 'stroke-width': 7,
+    'stroke-linecap': 'round', 'stroke-dasharray': (goalRatio(e) * C).toFixed(1) + ' ' + C,
+  }));
+  rv.appendChild(svg);
+  rv.appendChild(el('span', 'pct', '%' + pct));
+  box.appendChild(rv);
+  box.appendChild(el('div', 'tp', tp));
+  return box;
+}
+
 function renderSummary(list) {
-  const box = $('summary');
-  box.replaceChildren();
-  if (!list.length) { box.hidden = true; return; }
-  box.hidden = false;
+  const head = $('listhead');
+  head.replaceChildren();
+  head.appendChild(el('h2', '', 'Takip Ettiklerim (' + list.length + ')'));
   let saved = 0, down = 0, goals = 0;
   for (const e of list) {
     if (e.cur < e.base) { saved += e.base - e.cur; down++; }
     if (e.target !== null && e.cur <= e.target) goals++;
   }
-  const left = el('div');
-  left.appendChild(el('div', 'sub', 'Eklendikten sonra toplam tasarruf'));
-  left.appendChild(el('div', 'big' + (saved > 0 ? '' : ' none'), fmt(saved)));
-  const bits = [list.length + ' üründen ' + down + ' tanesi ucuzladı'];
+  if (saved > 0) head.appendChild(el('span', 'pill', fmt(saved) + ' Tasarruf'));
+  const bits = [];
+  if (list.length) bits.push(list.length + ' üründen ' + down + ' tanesi ucuzladı');
   if (goals) bits.push(goals + ' hedefe ulaştı');
-  left.appendChild(el('div', 'sub', bits.join(' · ')));
-  box.appendChild(left);
-  const sel = el('select');
-  sel.setAttribute('aria-label', 'Sıralama');
-  for (const [v, t] of [['new', 'Yeni eklenen'], ['drop', 'En çok düşen'], ['goal', 'Hedefe yakın']]) {
-    const o = el('option', '', t); o.value = v; if (v === SORT) o.selected = true; sel.appendChild(o);
-  }
-  sel.addEventListener('change', () => {
-    SORT = sel.value;
-    try { localStorage.setItem('sortMode', SORT); } catch (_) { /* yoksay */ }
-    render(DATA);
-  });
-  box.appendChild(sel);
+  $('subline').textContent = bits.join(' · ');
 }
 
 function renderTabs(all) {
   const box = $('tabs');
   box.replaceChildren();
-  if (!all.length) { box.hidden = true; return; }
-  box.hidden = false;
   const count = (k) => k === 'all' ? all.length : all.filter((e) => e.p.source === k).length;
   const tabs = [['all', 'Tümü']].concat(Object.keys(SOURCE).filter((k) => count(k) > 0).map((k) => [k, SOURCE[k]]));
   for (const [k, t] of tabs) {
-    const b = el('button', '', t);
+    const b = el('button', 'tile');
     b.type = 'button';
-    b.appendChild(el('small', '', String(count(k))));
+    if (k === 'all') {
+      const s = el('span', 'pb', '#');
+      s.style.background = 'var(--ink)'; s.style.color = 'var(--card)';
+      b.appendChild(s);
+    } else b.appendChild(badge(k));
+    b.appendChild(el('b', '', String(count(k))));
+    b.appendChild(el('span', 'lb', t));
     b.setAttribute('aria-pressed', k === SHOP ? 'true' : 'false');
     b.addEventListener('click', () => {
       SHOP = k;
@@ -558,11 +654,13 @@ function render(data) {
   const pool = SHOP === 'all' ? all : all.filter((e) => e.p.source === SHOP);
   renderCats(pool);
   const normC = (c) => (c || '').toLocaleLowerCase('tr');
-  const list = !CAT ? pool
+  let list = !CAT ? pool
     : pool.filter((e) => CAT === NOCAT ? !e.it.category : normC(e.it.category) === CAT);
+  const qn = Q.trim().toLocaleLowerCase('tr');
+  if (qn) list = list.filter((e) => (e.p.title || '').toLocaleLowerCase('tr').includes(qn));
   renderSummary(list);
   if (!list.length) {
-    ul.appendChild(el('li', 'empty', all.length
+    ul.appendChild(el('li', 'empty', qn ? 'Aramayla eşleşen ürün yok.' : all.length
       ? 'Bu mağazada takip ettiğin ürün yok.'
       : 'Henüz takip ettiğin ürün yok. Yukarıya bir link yapıştır.'));
     return;
@@ -607,17 +705,20 @@ function render(data) {
       ul.appendChild(h);
       lastCat = norm(it.category);
     }
-    const li = el('li', 'item');
+    const li = el('li', 'item' + (target === null ? ' noring' : ''));
 
+    const th = el('div', 'thumb');
     if (p.imageUrl && /^https:\/\//.test(p.imageUrl)) {
       const img = document.createElement('img');
       img.src = p.imageUrl; img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
-      li.appendChild(img);
+      th.appendChild(img);
     } else {
-      li.appendChild(el('div', 'noimg'));
+      th.appendChild(el('div', 'noimg'));
     }
+    th.appendChild(badge(p.source));
+    li.appendChild(th);
 
-    const box = el('div');
+    const box = el('div', 'main');
     const a = el('a', 'title', p.title || 'Ürün');
     if (/^https:\/\//.test(p.url)) { a.href = p.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
     box.appendChild(a);
@@ -630,22 +731,13 @@ function render(data) {
       flat ? 'değişmedi' : (d < 0 ? '−%' : '+%') + Math.abs(d).toFixed(1).replace('.', ',')));
     if (e.st.distinct > 1 && cur <= e.st.lo) prices.appendChild(el('span', 'chip low', '⭐ En düşük'));
     box.appendChild(prices);
+    li.appendChild(box);
 
-    if (target !== null) {
-      const g = el('div', 'goal');
-      g.textContent = cur <= target
-        ? '🎯 Hedefe ulaştı (' + fmt(target) + ')'
-        : '🎯 Hedef ' + fmt(target) + ' (%' + String(Math.round((base - target) / base * 1000) / 10).replace('.', ',') + ') · ' + fmt(cur - target) + ' kaldı';
-      const bar = el('div', 'bar');
-      const fill = document.createElement('i');
-      fill.style.width = Math.round(goalRatio(e) * 100) + '%';
-      bar.appendChild(fill);
-      g.appendChild(bar);
-      box.appendChild(g);
-    }
+    if (target !== null) li.appendChild(ring(e));
 
+    const foot = el('div', 'foot');
     const sp = spark(it.history, base);
-    if (sp) box.appendChild(sp);
+    if (sp) foot.appendChild(sp);
 
     const meta = el('div', 'meta');
     const left = el('span');
@@ -660,11 +752,24 @@ function render(data) {
       acts.appendChild(go);
     }
     const open = OPEN.has(it.id);
-    const det = el('button', 'ghost small', open ? 'Kapat' : 'Detay');
+    const more = el('button', 'ghost more', '⋯');
+    more.type = 'button';
+    more.setAttribute('aria-label', 'Diğer işlemler');
+    more.setAttribute('aria-expanded', String(open));
+    acts.appendChild(more);
+    meta.appendChild(acts);
+    foot.appendChild(meta);
+
+    const menu = el('div', 'menu');
+    menu.hidden = !open;
+    more.addEventListener('click', () => {
+      menu.hidden = !menu.hidden;
+      more.setAttribute('aria-expanded', String(!menu.hidden));
+    });
+    const det = el('button', 'ghost small', open ? 'Detayı kapat' : 'Detay');
     det.type = 'button';
-    det.setAttribute('aria-expanded', String(open));
     det.addEventListener('click', () => { if (OPEN.has(it.id)) OPEN.delete(it.id); else OPEN.add(it.id); render(DATA); });
-    acts.appendChild(det);
+    menu.appendChild(det);
     const del = el('button', 'ghost small', 'Sil');
     del.type = 'button';
     del.addEventListener('click', async () => {
@@ -672,11 +777,10 @@ function render(data) {
       del.disabled = true;
       try { await api('remove', { id: it.id }); OPEN.delete(it.id); await refresh(); } catch (err) { say(err.message, true); del.disabled = false; }
     });
-    acts.appendChild(del);
-    meta.appendChild(acts);
-    box.appendChild(meta);
+    menu.appendChild(del);
+    foot.appendChild(menu);
+    li.appendChild(foot);
 
-    li.appendChild(box);
     if (open) li.appendChild(renderDetail(e));
     ul.appendChild(li);
   }
@@ -751,6 +855,19 @@ $('btnCheck').addEventListener('click', async () => {
 $('btnThr').addEventListener('click', async () => {
   try { await api('threshold', { value: Number($('thr').value) }); say('Eşik kaydedildi.'); }
   catch (e) { say(e.message, true); }
+});
+
+$('q').addEventListener('input', () => { Q = $('q').value; if (DATA) render(DATA); });
+$('sort').value = SORT;
+$('sort').addEventListener('change', () => {
+  SORT = $('sort').value;
+  try { localStorage.setItem('sortMode', SORT); } catch (_) { /* yoksay */ }
+  if (DATA) render(DATA);
+});
+$('btnSet').addEventListener('click', () => {
+  const box = $('settings');
+  box.hidden = !box.hidden;
+  $('btnSet').setAttribute('aria-expanded', String(!box.hidden));
 });
 
 $('btnOut').addEventListener('click', () => {
